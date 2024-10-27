@@ -16,12 +16,15 @@ For the setup of the project follow the instructions in the [SETUP.md](docs/SETU
 │
 ├── src                      # source code folder for common code and for CRISP-DM steps
 │     ├── common
-│     ├── data_understanding
-│     ├── data_preparation
-│     ├── ...               
-│     └── modelling
+│     ├── faster_rcnn_experiment  # Faster R-CNN experiment      
+│     └── yolo_v11_experiment     # YOLOv11 experiment
 │
-├── dev-requirements.txt     # testing dependencies
+├── notebooks                 # jupyter notebooks folder
+│
+├── docs                      # documentation folder 
+│     └── Project_Report.md   # final project report
+│
+├── dev-requirements.txt     # development dependencies
 ├── environment.yaml         # conda formatted dependencies, used by 'make init' to create the virtualenv
 ├── README.md                
 └── requirements.txt         # core dependencies of the library in pip format
