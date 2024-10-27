@@ -83,10 +83,10 @@ pip install -e .[dev]
 
 ### venv Activiation
 
-If conda was used to create the environment, it created a virtual environment called `r2070e-real-time-detection-system`. To activate it:
+If conda was used to create the environment, it created a virtual environment called `real-time-detection`. To activate it:
 
 ```bash
-conda activate r2070e-real-time-detection-system
+conda activate real-time-detection
 ```
 
 Otherwise, use the following command to activate the virtual environment:

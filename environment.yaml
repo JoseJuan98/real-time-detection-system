@@ -1,4 +1,4 @@
-name: r2070e-real-time-detection-system
+name: real-time-detection
 channels:
   - defaults
   - conda-forge
