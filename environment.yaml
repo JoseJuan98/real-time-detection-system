@@ -1,0 +1,11 @@
+name: r2070e-real-time-detection-system
+channels:
+  - defaults
+  - conda-forge
+  - pytorch
+  - nvidia
+dependencies:
+  - python==3.12
+  - pip
+  - pip:
+    - -e .[dev]
