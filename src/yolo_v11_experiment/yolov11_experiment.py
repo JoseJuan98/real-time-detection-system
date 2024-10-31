@@ -4,27 +4,10 @@ import cv2
 import numpy
 from skimage import feature
 from ultralytics import YOLO
+from ultralytics.engine.results import Results
 
 from common.config import Config
 from common.log import get_logger
-
-
-def detect_objects(image: numpy.ndarray, model: YOLO) -> numpy.ndarray:
-    """Detect objects in an image using YOLOv11.
-
-    Args:
-        image (numpy.ndarray): Image.
-        model (YOLO): YOLOv11 model.
-
-    Returns:
-        detections: Detected objects.
-    """
-    blob = cv2.dnn.blobFromImage(image, 1 / 255, (416, 416), swapRB=True, crop=False)
-    model.setInput(blob)
-    layer_names = model.getLayerNames()
-    output_layers = [layer_names[i[0] - 1] for i in model.getUnconnectedOutLayers()]
-    detections = model.forward(output_layers)
-    return detections
 
 
 def is_decoy(object_roi: numpy.ndarray) -> bool:
@@ -74,10 +57,13 @@ def process_frame(color_image: numpy.ndarray, depth_image: numpy.ndarray, model:
         depth_image (numpy.ndarray): Depth image.
         model (YOLO): YOLOv11 model.
     """
-    detections = detect_objects(image=color_image, model=model)
-    for det in detections:
-        x, y, w, h = det["bbox"]
+    detections: list[Results] = model(color_image)
+
+    # FIXME: how to get the boxes from the detections?
+    for det in detections[0].boxes.xywhn:
+        x, y, w, h = det.tolist()
         object_roi = color_image[y : y + h, x : x + w]
+
         if not is_decoy(object_roi):
             position = get_3d_position(depth_image, x + w // 2, y + h // 2)
             print(f"Real object detected at {position}")
@@ -85,10 +71,15 @@ def process_frame(color_image: numpy.ndarray, depth_image: numpy.ndarray, model:
 
 def main():
     """Main function."""
-    color_img_dir = Config.data_dir / "raw" / "test" " camera_color_image_raw"
-    depth_img_dir = Config.data_dir / "raw" / "test" " camera_depth_image_raw"
+    color_img_dir = Config.data_dir / "raw" / "test" / "camera_color_image_raw"
+    depth_img_dir = Config.data_dir / "raw" / "test" / "camera_depth_image_raw"
 
-    model = YOLO(model=Config.model_dir / "yolov11.pt", task="detection", verbose=True)
+    model_pt = Config.model_dir.parents[1] / "pretrained_models" / "yolo_v11_extinguiser" / "weights" / "best.pt"
+    model = YOLO(model=model_pt, task="detect", verbose=True)
+
+    # detection = model(
+    #     Config.data_dir / "FireExtinguiser" / "valid" / "images" / "30_jpg.rf.7a274213763dbf3a7a0c74e44bb34f24.jpg"
+    # )
 
     color_imgs = sorted(color_img_dir.glob("*.png"))
     depth_imgs = sorted(depth_img_dir.glob("*.png"))
