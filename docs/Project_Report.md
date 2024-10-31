@@ -9,8 +9,8 @@
 
 1. Introduction
 2. Object Detection
-3. Object Classification
-4. Depth Estimation
+3. Object Filtering
+4. Position Estimation
 
 
 # Introduction
