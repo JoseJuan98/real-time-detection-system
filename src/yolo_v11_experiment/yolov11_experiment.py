@@ -74,7 +74,7 @@ def main():
     color_img_dir = Config.data_dir / "raw" / "test" / "camera_color_image_raw"
     depth_img_dir = Config.data_dir / "raw" / "test" / "camera_depth_image_raw"
 
-    model_pt = Config.model_dir.parents[1] / "pretrained_models" / "yolo_v11_extinguiser" / "weights" / "best.pt"
+    model_pt = Config.model_dir.parents[1] / "models" / "yolo_v11_extinguiser" / "weights" / "best.pt"
     model = YOLO(model=model_pt, task="detect", verbose=True)
 
     # detection = model(
