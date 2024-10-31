@@ -18,6 +18,9 @@ kill-tensorboard:
 clean-files:
 	find . | grep -E "build$|\/__pycache__$|\.pyc$|\.pyo$|\.egg-info$|\.ipynb_checkpoints" | xargs rm -rf || echo "Already clean"
 
+train-yolo:
+	python src/yolo_v11_experiment/train_yolov11.py
+
 DEFAULT_GOAL := help
 .PHONY: help
 help:
