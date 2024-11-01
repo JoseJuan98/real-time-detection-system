@@ -59,13 +59,13 @@ def process_frame(color_image: numpy.ndarray, depth_image: numpy.ndarray, model:
     """
     detections: list[Results] = model(color_image)
 
-    # FIXME: how to get the boxes from the detections?
-    for det in detections[0].boxes.xywhn:
-        x, y, w, h = det.tolist()
-        object_roi = color_image[y : y + h, x : x + w]
+    for det in detections[0].boxes.xyxy:
+        x1, y1, x2, y2 = det
+        x1, y1, x2, y2 = int(x1), int(y1), int(x2), int(y2)
+        object_roi = color_image[y1:y2, x1:x2]
 
         if not is_decoy(object_roi):
-            position = get_3d_position(depth_image, x + w // 2, y + h // 2)
+            position = get_3d_position(depth_image=depth_image, x=(x1 + x2) // 2, y=(y1 + y2) // 2)
             print(f"Real object detected at {position}")
 
 
@@ -84,7 +84,12 @@ def main():
     color_imgs = sorted(color_img_dir.glob("*.png"))
     depth_imgs = sorted(depth_img_dir.glob("*.png"))
 
-    color_image = cv2.imread(str(color_imgs[0]), cv2.IMREAD_COLOR)
+    color_image = cv2.imread(
+        str(
+            Config.data_dir / "FireExtinguiser" / "valid" / "images" / "30_jpg.rf.7a274213763dbf3a7a0c74e44bb34f24.jpg"
+        ),
+        cv2.IMREAD_COLOR,
+    )
     depth_image = cv2.imread(str(depth_imgs[0]), cv2.IMREAD_UNCHANGED)
 
     logger = get_logger(log_filename=Config.log_dir / "yolov11_experiment.log")

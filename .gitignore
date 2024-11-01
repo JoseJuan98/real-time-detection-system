@@ -116,6 +116,7 @@ target/
 **/*.iml
 
 # others
+.cadence
 .sagemaker-code-config
 .aws
 .hypothesis
