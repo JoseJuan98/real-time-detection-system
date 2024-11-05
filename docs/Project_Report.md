@@ -9,8 +9,9 @@
 
 1. Introduction
 2. Object Detection
-3. Object Filtering
+3. Decoy Filtering
 4. Position Estimation
+5. Conclusion
 
 
 # Introduction
@@ -87,3 +88,6 @@ where:
 - $Z$ is the depth of the object
 - $X$ is the relative position in the x-axis
 - $Y$ is the relative position in the y-axis
+
+# Conclusion
+
