@@ -29,7 +29,8 @@ def train_yolov11():
         # workers=12,  # number of workers
         batch=1,  # batch size
         exist_ok=True,
-        #save_json=True,
+        save_dir=Config.model_dir,
+        # save_json=True,
     )
 
     # Export the model to ONNX format
