@@ -29,3 +29,7 @@ For the setup of the project follow the instructions in the [SETUP.md](docs/SETU
 ├── README.md                
 └── requirements.txt         # core dependencies of the library in pip format
 ```
+
+## About Data
+
+The data must be downloaded to the folder `artifacts/data` to reproduce the experiments.
