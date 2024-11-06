@@ -117,3 +117,4 @@ The 3D position of the object is estimated using the depth map.
 - We missed to rectify the images
 - We could have fine tune better the threshold for the texture analysis
 - We could have improve the 3D real position by investigating the scale the depth camera and of the point clouds to have better visualizations
+- Use ROS to automate part of the process and better understand the scene
