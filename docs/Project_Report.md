@@ -16,7 +16,7 @@
 
 # Introduction
 
-The aim of this project is to develop a system that can detect objects in a given image, classify if it's a decoy object and then estimate the relative distance of the object given the depth. The system is divided into three main components: 
+The aim of this project is to develop a system that can detect fire extinguisers in a given image, classify if it's a decoy object and then estimate the relative distance of the object given the depth. The system is divided into three main components: 
 
 - Object Detection
 - Decoy Filtering
