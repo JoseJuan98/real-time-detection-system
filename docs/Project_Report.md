@@ -40,12 +40,22 @@ Models trained were:
 
 ## YOLOv11
 
-
-Some of the results are shown below:
-
 ![](pretrained_models/yolo_v11_extinguiser/val_batch2_pred.jpg)
-<p style="text-align: center"> Figure 2: Fire Extinguisher Detection with YOLOv11</p>
+<p style="text-align: center"> Figure : Fire Extinguisher Detection with YOLOv11</p>
 
+These are some of the results using the validation dataset.
+
+
+
+![](img/yolov11_experiment/img0/color_image.png)
+<p style="text-align: center"> Figure : Original image</p>
+
+Using the YOLOv11 model, the object detection was done on the dataset provided using this image to illustrate the results.
+
+![](img/yolov11_experiment/img0/detections.png)
+<p style="text-align: center"> Figure : Object Detection with YOLOv11</p>
+
+The model was able to detect the fire extinguisher in the image.
 
 
 # Decoy Filtering
@@ -65,6 +75,7 @@ The decoy filtering is done using two methods:
 The Local Binary Pattern (LBP) is a texture descriptor that is used to classify textures based on the patterns formed by the intensity values of the pixels in an image. 
 The LBP histogram is used to classify the object as a decoy or not.
 
+![](img/yolov11_experiment/img0/lbp_hist.png)
 <p style="text-align: center"> Figure 4: LBP Histogram for Texture Analysis</p>
 
 
@@ -88,6 +99,18 @@ where:
 - $Z$ is the depth of the object
 - $X$ is the relative position in the x-axis
 - $Y$ is the relative position in the y-axis
+
+## Using Depth Map with YoloV11
+
+![](img/yolov11_experiment/img0/depth_image.png)
+<p style="text-align: center"> Figure 5: Depth Map</p>
+
+The depth map is used to estimate the 3D position of the object in the image.
+
+![](img/yolov11_experiment/img0/3D_position.png)
+<p style="text-align: center"> Figure 5: 3D Position Estimation using Depth Map</p>
+
+The 3D position of the object is estimated using the depth map.
 
 # Conclusion
 

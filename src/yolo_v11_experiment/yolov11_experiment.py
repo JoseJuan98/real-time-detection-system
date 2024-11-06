@@ -38,6 +38,13 @@ def is_decoy(object_roi: numpy.ndarray) -> bool:
 
     # Thresholding based on empirical observation
     if lbp_hist.max().item() > 0.3:
+        # plot histogram
+        pyplot.figure(figsize=(16, 9))
+        pyplot.bar(numpy.arange(0, 26), lbp_hist)
+        pyplot.title("LBP Histogram")
+        # FIXME:
+        pyplot.savefig("lbp_hist.png")
+        pyplot.close()
         return False
     return True
 
@@ -56,8 +63,8 @@ def get_3d_position(depth_image: numpy.ndarray, x: numpy.ndarray, y: numpy.ndarr
     """
     depth = depth_image[y, x]
     fx, fy, cx, cy = K[0, 0], K[1, 1], K[0, 2], K[1, 2]
-    X = (x - cx) * depth / fx
-    Y = (y - cy) * depth / fy
+    X = abs((x - cx) * depth / fx)
+    Y = abs((y - cy) * depth / fy)
     Z = depth
     return numpy.array([X, Y, Z]).astype(numpy.float32)
 
@@ -71,6 +78,7 @@ def plot_and_save(img: numpy.ndarray, file_path: pathlib.Path | str, cmap: str =
         cmap (str): Colormap to use.
         plot (bool): Plot the image. Default is False.
     """
+    pyplot.figure(figsize=(16, 9))
     pyplot.imshow(X=img, cmap=cmap)
     pyplot.savefig(file_path, bbox_inches="tight", pad_inches=0.1)
 
@@ -110,6 +118,7 @@ def process_frame(
         cmap="viridis",
     )
 
+    pyplot.figure(figsize=(16, 9))
     detections[0].plot(filename=str(plot_dir / "detections.png"), save=True)
 
     positions = []
@@ -139,13 +148,15 @@ def visualize_3d_positions(positions: numpy.ndarray, point_cloud: numpy.ndarray,
         positions (list[numpy.ndarray]): List of 3D positions.
         point_cloud (PointCloud): Point cloud.
     """
-    rgb = numpy.zeros(shape=(point_cloud.shape[0] + positions.shape[0], 3), dtype=numpy.uint8)
-    rgb[-positions.shape[0]] = numpy.ones(shape=(positions.shape[0], 3), dtype=numpy.uint8) * 255
-
     # normalize point cloud based in the range of the point cloud itself
-    normalized_points = (positions - point_cloud.min(axis=0)) / (point_cloud.max(axis=0) - point_cloud.min(axis=0))
+    normalized_points = (positions - point_cloud.min()) / (point_cloud.max() - point_cloud.min()) / 100
+    normalized_points[:, 2] = normalized_points[:, 2] / 10
 
     point_cloud = numpy.concatenate((point_cloud, normalized_points), axis=0)
+
+    # Create RGB array for coloring the point cloud
+    rgb = numpy.zeros(shape=(point_cloud.shape[0], 3), dtype=numpy.uint8)
+    rgb[-positions.shape[0]] = numpy.ones(shape=(positions.shape[0], 3), dtype=numpy.uint8) * 255
 
     pyvista.plot(
         point_cloud,
