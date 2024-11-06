@@ -76,6 +76,8 @@ The decoy filtering is done using two methods:
 
 ## Feature Extraction using ResNet18 and K-Means Clustering
 
+To filter out decoy objects and identify real fire extinguishers, we used a pre-trained ResNet18 model to extract features from the regions defined by bounding boxes in the images. These features are then clustered into two groups using the KMeans algorithm, which separates the real fire extinguishers from decoys. The clustering results are used to filter the bounding boxes, retaining only those associated with the cluster identified as containing real fire extinguishers. 
+
 ![](img/faster_rcnn_experiment/without_decoy_filter.png) 
 <p style="text-align: center"> Figure 5: Object detection with faster r-cnn before applying decoy filter</p>
 
@@ -133,8 +135,11 @@ The 3D position of the object is estimated using the depth map.
 <p style="text-align: center"> Figure 10: 3D position estimated with Depth images</p>
 
 
-# Conclusion
-
+# Discussion and Conclusion
+- The trained Yolov11 and Faster R-CNN performed farely well when tested with validation dataset of fire-extinguisher dataset
+- YoloV11 imlementation showed better precision and Faster R-CNN implementation showed better recall
+- Implementing a decoy filtering mechanism using feature extraction with ResNet18 and KMeans clustering effectively distinguished real objects from decoys
+- Depth camera paramets and depth information from depth images were used to estimate 3D position of detected real objects
 - We missed to rectify the images
 - We could have fine tune better the threshold for the texture analysis
 - We could have improve the 3D real position by investigating the scale the depth camera and of the point clouds to have better visualizations
