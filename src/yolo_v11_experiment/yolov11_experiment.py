@@ -1,11 +1,18 @@
 # -*- utf-8 -*-
 """Yolov11 experiment."""
+import pathlib
+
 import cv2
 import numpy
 import yaml
+import pyvista
+from numpy.ma.core import shape
 from skimage import feature
+from matplotlib import pyplot
 from ultralytics import YOLO
 from ultralytics.engine.results import Results
+
+from pypcd4 import PointCloud
 
 from common.config import Config
 from common.log import get_logger, msg_task
@@ -20,15 +27,19 @@ def is_decoy(object_roi: numpy.ndarray) -> bool:
     Returns:
         is_decoy: True if object is a decoy, False otherwise.
     """
+    # if it's a color image, convert to grayscale
+    if object_roi.ndim == 3:
+        object_roi = cv2.cvtColor(object_roi, cv2.COLOR_BGR2GRAY)
+
     lbp = feature.local_binary_pattern(object_roi, P=24, R=3, method="uniform")
     lbp_hist, _ = numpy.histogram(lbp.ravel(), bins=numpy.arange(0, 27), range=(0, 26))
     lbp_hist = lbp_hist.astype("float")
     lbp_hist /= lbp_hist.sum() + 1e-6
 
     # Thresholding based on empirical observation
-    if numpy.max(lbp_hist) > 0.3:
-        return True
-    return False
+    if lbp_hist.max().item() > 0.3:
+        return False
+    return True
 
 
 def get_3d_position(depth_image: numpy.ndarray, x: numpy.ndarray, y: numpy.ndarray, K: numpy.ndarray) -> numpy.ndarray:
@@ -48,12 +59,30 @@ def get_3d_position(depth_image: numpy.ndarray, x: numpy.ndarray, y: numpy.ndarr
     X = (x - cx) * depth / fx
     Y = (y - cy) * depth / fy
     Z = depth
-    return numpy.array([X, Y, Z])
+    return numpy.array([X, Y, Z]).astype(numpy.float32)
+
+
+def plot_and_save(img: numpy.ndarray, file_path: pathlib.Path | str, cmap: str = None, plot: bool = False) -> None:
+    """Save plot to file.
+
+    Args:
+        file_path (pathlib.Path | str): File path to save plot.
+        img (numpy.ndarray): Image to plot.
+        cmap (str): Colormap to use.
+        plot (bool): Plot the image. Default is False.
+    """
+    pyplot.imshow(X=img, cmap=cmap)
+    pyplot.savefig(file_path, bbox_inches="tight", pad_inches=0.1)
+
+    if plot:
+        pyplot.show()
+
+    pyplot.close()
 
 
 def process_frame(
-    color_image: numpy.ndarray, depth_image: numpy.ndarray, model: YOLO, K: numpy.ndarray
-) -> list[numpy.ndarray]:
+    color_image: numpy.ndarray, depth_image: numpy.ndarray, model: YOLO, K: numpy.ndarray, plot_dir: pathlib.Path
+) -> (list[numpy.ndarray], int):
     """Process a frame.
 
     Args:
@@ -61,43 +90,100 @@ def process_frame(
         depth_image (numpy.ndarray): Depth image.
         model (YOLO): YOLOv11 model.
         K (numpy.ndarray): Camera intrinsic matrix.
+        plot_dir (pathlib.Path): Directory to save plots.
+
+    Returns:
+        list: List of 3D positions of objects.
+        int: total number of extinguisers detected without filtering.
     """
-    # FIXME: only get the prediction over a threshold confidence
     detections: list[Results] = model(color_image)
+
+    # Create plot directory if it doesn't exist
+    plot_dir.mkdir(parents=True, exist_ok=True)
+    plot_and_save(
+        img=color_image,
+        file_path=plot_dir / "color_image.png",
+    )
+    plot_and_save(
+        img=depth_image,
+        file_path=plot_dir / "depth_image.png",
+        cmap="viridis",
+    )
+
+    detections[0].plot(filename=str(plot_dir / "detections.png"), save=True)
 
     positions = []
     for box in detections[0].boxes:
-        x1, y1, x2, y2 = box.xyxy[0]
-        x1, y1, x2, y2 = int(x1), int(y1), int(x2), int(y2)
-        object_roi = color_image[y1:y2, x1:x2].reshape(-1, 3)
 
-        if is_decoy(object_roi=object_roi):
-            print("Decoy detected!")
-        else:
+        # Skip boxes with low confidence
+        if box.conf[0].item() < 0.65:
+            continue
+
+        x1, y1, x2, y2 = box.xyxy[0]
+
+        x1, y1, x2, y2 = int(x1), int(y1), int(x2), int(y2)
+        object_roi = color_image[y1:y2, x1:x2]
+
+        if not is_decoy(object_roi=object_roi):
+            # get 3D centric position
             position = get_3d_position(depth_image=depth_image, K=K, x=(x1 + x2) // 2, y=(y1 + y2) // 2)
-            print(f"Real object detected at {position}")
             positions.append(position)
 
-    return positions
+    return positions, len(detections[0])
+
+
+def visualize_3d_positions(positions: numpy.ndarray, point_cloud: numpy.ndarray, plot_path: pathlib.Path) -> None:
+    """Visualize 3D positions.
+
+    Args:
+        positions (list[numpy.ndarray]): List of 3D positions.
+        point_cloud (PointCloud): Point cloud.
+    """
+    rgb = numpy.zeros(shape=(point_cloud.shape[0] + positions.shape[0], 3), dtype=numpy.uint8)
+    rgb[-positions.shape[0]] = numpy.ones(shape=(positions.shape[0], 3), dtype=numpy.uint8) * 255
+
+    # normalize point cloud based in the range of the point cloud itself
+    normalized_points = (positions - point_cloud.min(axis=0)) / (point_cloud.max(axis=0) - point_cloud.min(axis=0))
+
+    point_cloud = numpy.concatenate((point_cloud, normalized_points), axis=0)
+
+    pyvista.plot(
+        point_cloud,
+        point_size=5,
+        show_edges=True,
+        scalars=rgb,
+        cpos="xy",
+    )
+    # pl = pyvista.Plotter(off_screen=True)
+    # pl.add_mesh(
+    #     point_cloud,
+    #     style="points_gaussian",
+    #     color="#fff7c2",
+    #     scalars=rgb,
+    #     opacity=0.25,
+    #     point_size=5,
+    #     show_scalar_bar=False,
+    #     show_edges=True,
+    # )
+    # pl.background_color = "k"
+    # pl.show(auto_close=False)
+    # path = pl.generate_orbital_path(n_points=36, shift=point_cloud.shape[0], factor=3.0)
+    # pl.open_gif(plot_path)
+    # pl.orbit_on_path(path, write_frames=True)
+    # pl.close()
 
 
 def main():
     """Main function."""
-    color_img_dir = Config.data_dir / "raw" / "test" / "camera_color_image_raw"
-    depth_img_dir = Config.data_dir / "raw" / "test" / "camera_depth_image_raw"
+    data_dir = Config.data_dir / "raw" / "test"
+    color_img_dir = data_dir / "camera_color_image_raw"
+    depth_img_dir = data_dir / "camera_depth_image_raw"
+    pcd_dir = data_dir / "camera_depth_points"
+    plot_dir = Config.plot_dir / "yolov11_experiment"
 
     model_pt = Config.model_dir.parents[1] / "models" / "yolo_v11_extinguiser" / "weights" / "best.pt"
     model = YOLO(model=model_pt, task="detect", verbose=True)
 
-    # Image with several objects
-    # detection = model(
-    #     Config.data_dir / "FireExtinguiser" / "valid" / "images" / "30_jpg.rf.7a274213763dbf3a7a0c74e44bb34f24.jpg"
-    # )
-
-    # Image with decoys
-    # decoy_img = (
-    #     Config.data_dir / "raw" / "test" / "camera_color_image_raw" / "camera_color_image_1727164485882972273.png"
-    # )
     # importing camera parameters from yaml
     with open(
         color_img_dir.parent / "camera_color_camera_info" / "camera_color_info_1727164479160357265.txt", "r"
@@ -108,26 +194,56 @@ def main():
 
     color_imgs = sorted(color_img_dir.glob("*.png"))
     depth_imgs = sorted(depth_img_dir.glob("*.png"))
+    point_clouds = sorted(pcd_dir.glob("*.pcd"))
 
-    color_image = cv2.imread(color_imgs[0], cv2.IMREAD_COLOR)
-    depth_image = cv2.imread(depth_imgs[0], cv2.IMREAD_UNCHANGED)
+    # Image with several objects
+    # detection = model(
+    #     Config.data_dir / "FireExtinguiser" / "valid" / "images" / "30_jpg.rf.7a274213763dbf3a7a0c74e44bb34f24.jpg"
+    # )
 
-    logger = get_logger(log_filename=Config.log_dir / "yolov11_experiment.log")
+    # Image with decoys
+    # color_imgs[0] = (
+    #     Config.data_dir / "raw" / "test" / "camera_color_image_raw" / "camera_color_image_1727164485882972273.png"
+    # )
+
+    color_imgs = [color_imgs[0]]
+    depth_imgs = [depth_imgs[0]]
+    point_clouds = [point_clouds[0]]
+
+    logger = get_logger(log_filename="yolov11_experiment.log")
 
     msg_task(msg="3D Poisition estimation - Yolov11 Experiment", logger=logger)
 
-    logger.info(f"Load {len(color_imgs)} images of shape {color_image.shape} and {depth_image.shape} loaded.")
+    logger.info(
+        f"Loaded {len(color_imgs)} images for experiment of shape (640x400) and depth images of shape (640x400)."
+    )
 
-    positions = process_frame(color_image=color_image, depth_image=depth_image, model=model, K=K)
+    for idx, (color_img, depth_img, point_cloud) in enumerate(zip(color_imgs, depth_imgs, point_clouds)):
+        color_image = cv2.imread(color_img, cv2.IMREAD_COLOR)
+        depth_image = cv2.imread(depth_img, cv2.IMREAD_UNCHANGED)
+        point_cloud = PointCloud.from_path(point_cloud).numpy(fields=["x", "y", "z"])
 
-    if not positions:
-        logger.info("No objects detected.")
+        positions, n_extinguisers = process_frame(
+            color_image=color_image, depth_image=depth_image, model=model, K=K, plot_dir=plot_dir / f"img{idx}"
+        )
 
-    else:
+        if not positions:
+            logger.info("No objects detected.")
 
-        logger.info(f"Positions:")
-        for idx, position in enumerate(positions):
-            logger.info(f"Position for extinguiser {idx}: {position}")
+        else:
+
+            logger.info(f"Out of {n_extinguisers} extinguisers detected, {len(positions)} are detected to be real.")
+
+            for idx, position in enumerate(positions):
+                logger.info(f"Image {color_img.name} -> real position for extinguiser {idx}: {position}")
+
+            visualize_3d_positions(
+                positions=numpy.array(positions),
+                point_cloud=point_cloud,
+                plot_path=plot_dir / f"img{idx}" / "3d_positions.gif",
+            )
+
+        logger.info("Experiment completed.")
 
 
 if __name__ == "__main__":
