@@ -125,22 +125,24 @@ where:
 The depth map is used to estimate the 3D position of the object in the image.
 
 ![](img/yolov11_experiment/img0/detection_with_3D_positions.png)
+<p style="text-align: center"> Figure 9: Object Detection with 3D Position Estimation</p>
 
 In the point cloud, the 3D position of the object is estimated using the depth map, even though the point cloud is
 another scale, which gave us a wrong visualization.
 
 ![](img/yolov11_experiment/img0/3D_position.png)
-<p style="text-align: center"> Figure 9: 3D Position Estimation using Depth Map</p>
+<p style="text-align: center"> Figure 10: 3D Position Estimation using Depth Map</p>
 
 The 3D position of the object is estimated using the depth map.
 
 ## Using Depth Map with Faster r-cnn
 
 ![](img/faster_rcnn_experiment/with_decoy_filtering_and_3d_pos.png) 
-<p style="text-align: center"> Figure 10: 3D position estimated with Depth images</p>
+<p style="text-align: center"> Figure 11: 3D position estimated with Depth images</p>
 
 
 # Discussion and Conclusion
+
 - The trained Yolov11 and Faster R-CNN performed farely well when tested with validation dataset of fire-extinguisher dataset
 - YoloV11 imlementation showed better precision and Faster R-CNN implementation showed better recall
 - Implementing a decoy filtering mechanism using feature extraction with ResNet18 and KMeans clustering effectively distinguished real objects from decoys
