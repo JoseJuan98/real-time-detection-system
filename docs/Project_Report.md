@@ -35,8 +35,8 @@ Models trained were:
 
 ## Faster R-CNN
 
-
-<p style="text-align: center"> Figure 1: Fire Extinguisher Detection with Faster R-CNN</p>
+![](img/faster_rcnn_experiment/validation_image.png)
+<p style="text-align: center"> Figure: Fire Extinguisher Detection with Faster R-CNN</p>
 
 ## YOLOv11
 
@@ -66,8 +66,11 @@ The decoy filtering is done using two methods:
 
 ## Feature Extraction using ResNet18 and K-Means Clustering
 
+![](img/faster_rcnn_experiment/without_decoy_filter.png) 
+<p style="text-align: center"> Figure: Object detection with faster r-cnn before applying decoy filter</p>
 
-<p style="text-align: center"> Figure 3: Feature Extraction using ResNet18</p>
+![](img/faster_rcnn_experiment/with_decoy_filter.png) 
+<p style="text-align: center"> Figure: Object detection with faster r-cnn and applying decoy filter using ResNet18 and K-Means</p>
 
 
 ## Local Binary Pattern histogram for Texture Analysis
@@ -111,6 +114,12 @@ The depth map is used to estimate the 3D position of the object in the image.
 <p style="text-align: center"> Figure 5: 3D Position Estimation using Depth Map</p>
 
 The 3D position of the object is estimated using the depth map.
+
+## Using Depth Map with Faster r-cnn
+
+![](img/faster_rcnn_experiment/with_decoy_filtering_and_3d_pos.png) 
+<p style="text-align: center"> Figure: 3D position estimated with Depth images</p>
+
 
 # Conclusion
 
