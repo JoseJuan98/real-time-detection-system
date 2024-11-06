@@ -16,9 +16,7 @@
 
 # Introduction
 
-The aim of this project is to develop a system that can detect objects in a given image, classify if it's a decoy
-object and then estimate the relative distance of the object given the depth. The system is divided into three main
-components: 
+The aim of this project is to develop a system that can detect objects in a given image, classify if it's a decoy object and then estimate the relative distance of the object given the depth. The system is divided into three main components: 
 
 - Object Detection
 - Decoy Filtering
@@ -33,30 +31,42 @@ Models trained were:
 - Faster R-CNN
 - YOLOv11
 
-## Faster R-CNN
-
-![](img/faster_rcnn_experiment/validation_image.png)
-<p style="text-align: center"> Figure: Fire Extinguisher Detection with Faster R-CNN</p>
 
 ## YOLOv11
 
-![](pretrained_models/yolo_v11_extinguiser/val_batch2_pred.jpg)
-<p style="text-align: center"> Figure : Fire Extinguisher Detection with YOLOv11</p>
-
-These are some of the results using the validation dataset.
-
-
 
 ![](img/yolov11_experiment/img0/color_image.png)
-<p style="text-align: center"> Figure : Original image</p>
+<p style="text-align: center"> Figure 1: Original image</p>
 
 Using the YOLOv11 model, the object detection was done on the dataset provided using this image to illustrate the results.
 
 ![](img/yolov11_experiment/img0/detections.png)
-<p style="text-align: center"> Figure : Object Detection with YOLOv11</p>
+<p style="text-align: center"> Figure 2: Object Detection with YOLOv11</p>
 
-The model was able to detect the fire extinguisher in the image.
+The model was able to detect the fire extinguisher in the image with a confidence probability of $0.7$.
 
+
+![](../models/yolo_v11_extinguiser/val_batch2_pred.jpg)
+<p style="text-align: center"> Figure 3: Fire Extinguisher Detection with YOLOv11</p>
+
+These are some of the results using the validation dataset, where the accuracy 92%
+
+|  Metrics  |  Value  |
+| :-------: | :-----: |
+| Precision | 92.137% |
+|  Recall   | 85.076% |
+<p style="text-align: center">Table 1: Yolov11 Results</p>
+ 
+## Faster R-CNN
+
+![](img/faster_rcnn_experiment/validation_image.png)
+<p style="text-align: center"> Figure 4: Fire Extinguisher Detection with Faster R-CNN</p>
+
+|  Metrics  | Value  |
+| :-------: | :----: |
+| Precision | 61.55% |
+|  Recall   | 95.38% |
+<p style="text-align: center">Table 2: Faster R-CNN Results</p>
 
 # Decoy Filtering
 
@@ -67,10 +77,10 @@ The decoy filtering is done using two methods:
 ## Feature Extraction using ResNet18 and K-Means Clustering
 
 ![](img/faster_rcnn_experiment/without_decoy_filter.png) 
-<p style="text-align: center"> Figure: Object detection with faster r-cnn before applying decoy filter</p>
+<p style="text-align: center"> Figure 5: Object detection with faster r-cnn before applying decoy filter</p>
 
 ![](img/faster_rcnn_experiment/with_decoy_filter.png) 
-<p style="text-align: center"> Figure: Object detection with faster r-cnn and applying decoy filter using ResNet18 and K-Means</p>
+<p style="text-align: center"> Figure 6: Object detection with faster r-cnn and applying decoy filter using ResNet18 and K-Means</p>
 
 
 ## Local Binary Pattern histogram for Texture Analysis
@@ -79,7 +89,7 @@ The Local Binary Pattern (LBP) is a texture descriptor that is used to classify 
 The LBP histogram is used to classify the object as a decoy or not.
 
 ![](img/yolov11_experiment/img0/lbp_hist.png)
-<p style="text-align: center"> Figure 4: LBP Histogram for Texture Analysis</p>
+<p style="text-align: center"> Figure 7: LBP Histogram for Texture Analysis</p>
 
 
 # Position Estimation
@@ -88,9 +98,11 @@ The position estimation is done using the depth information from the image. The 
 The depth map is used to estimate the relative position in 3D $(X,Y,Z)$ based in the 2D position $(x,y)$ of the object in the image and the depth $D(x,y)$.
 
 $$
-X = \frac{(x - c_x) * Z}{f_x}
-Y = \frac{(y - c_y) * Z}{f_y}
-Z = D(x,y)
+\begin{align}
+X = \frac{(x - c_x) * Z}{f_x} \\ \\
+Y = \frac{(y - c_y) * Z}{f_y} \\ \\
+Z = D(x,y) \\
+\end{align}
 $$
 
 where:
@@ -106,19 +118,19 @@ where:
 ## Using Depth Map with YoloV11
 
 ![](img/yolov11_experiment/img0/depth_image.png)
-<p style="text-align: center"> Figure 5: Depth Map</p>
+<p style="text-align: center"> Figure 8: Depth Map</p>
 
 The depth map is used to estimate the 3D position of the object in the image.
 
 ![](img/yolov11_experiment/img0/3D_position.png)
-<p style="text-align: center"> Figure 5: 3D Position Estimation using Depth Map</p>
+<p style="text-align: center"> Figure 9: 3D Position Estimation using Depth Map</p>
 
 The 3D position of the object is estimated using the depth map.
 
 ## Using Depth Map with Faster r-cnn
 
 ![](img/faster_rcnn_experiment/with_decoy_filtering_and_3d_pos.png) 
-<p style="text-align: center"> Figure: 3D position estimated with Depth images</p>
+<p style="text-align: center"> Figure 10: 3D position estimated with Depth images</p>
 
 
 # Conclusion
