@@ -122,10 +122,11 @@ def process_frame(
     detections[0].plot(filename=str(plot_dir / "detections.png"), save=True)
 
     positions = []
+    confidence_treshold = 0.65
     for box in detections[0].boxes:
 
         # Skip boxes with low confidence
-        if box.conf[0].item() < 0.65:
+        if box.conf[0].item() < confidence_treshold:
             continue
 
         x1, y1, x2, y2 = box.xyxy[0]
@@ -137,6 +138,32 @@ def process_frame(
             # get 3D centric position
             position = get_3d_position(depth_image=depth_image, K=K, x=(x1 + x2) // 2, y=(y1 + y2) // 2)
             positions.append(position)
+
+    # plot img with positions
+    # plot the 3D position of the first object
+    pyplot.figure(figsize=(16, 9))
+    pyplot.imshow(X=cv2.cvtColor(color_image, cv2.COLOR_BGR2RGB))
+    idx = 0
+    for box in detections[0].boxes:
+
+        # Skip boxes with low confidence
+        if box.conf[0].item() < confidence_treshold:
+            continue
+
+        x1, y1, x2, y2 = box.xyxy[0]
+        x1, y1, x2, y2 = int(x1), int(y1), int(x2), int(y2)
+        # Draw the bounding box
+        rect = pyplot.Rectangle((x1, y1), x2 - x1, y2 - y1, fill=False, color="red", linewidth=2)
+        pyplot.gca().add_patch(rect)
+        pos_3d_text = (
+            f"({positions[idx][0].item():.2f}, {positions[idx][1].item():.2f}, {positions[idx][2].item():.2f})"
+        )
+        pyplot.text(
+            x1, y1, pos_3d_text, fontsize=8, color="blue", verticalalignment="bottom", horizontalalignment="left"
+        )
+        idx += 1
+    pyplot.savefig(plot_dir / "detection_with_3D_positions.png", bbox_inches="tight", pad_inches=0.1)
+    pyplot.show()
 
     return positions, len(detections[0])
 
