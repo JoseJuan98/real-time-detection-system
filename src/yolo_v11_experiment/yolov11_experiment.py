@@ -223,16 +223,7 @@ def main():
     depth_imgs = sorted(depth_img_dir.glob("*.png"))
     point_clouds = sorted(pcd_dir.glob("*.pcd"))
 
-    # Image with several objects
-    # detection = model(
-    #     Config.data_dir / "FireExtinguiser" / "valid" / "images" / "30_jpg.rf.7a274213763dbf3a7a0c74e44bb34f24.jpg"
-    # )
-
-    # Image with decoys
-    # color_imgs[0] = (
-    #     Config.data_dir / "raw" / "test" / "camera_color_image_raw" / "camera_color_image_1727164485882972273.png"
-    # )
-
+    # Choose the imgs you want to estimate the 3D position
     color_imgs = [color_imgs[0]]
     depth_imgs = [depth_imgs[0]]
     point_clouds = [point_clouds[0]]
