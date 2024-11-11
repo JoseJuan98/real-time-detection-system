@@ -79,9 +79,9 @@ target/
 .ipynb_checkpoints/
 
 # exclude data_processing from source control by default
-/artifacts/**/*
-/artifacts/data/**/*
-/artifacts/models/**/*
+/artifacts/
+/artifacts/data/
+/artifacts/models/
 
 # exclude 'data' and 'object' package resource folders from the 'common' package
 **/common/data/*
