@@ -60,17 +60,17 @@ Models were trained on the Roboflow [FireExtinguisher](https://universe.roboflow
 ## YOLOv11
 
 ![](docs/img/yolov11_experiment/img0/color_image.png)
-<p style="text-align: center"> Figure 1: Original image in BGR Color Space</p>
+<p style="text-align: center"> Figure 2: Original image in BGR Color Space</p>
 
 The YOLOv11 model was employed to detect objects within the dataset, as illustrated below.
 
 ![](docs/img/yolov11_experiment/img0/detections.png)
-<p style="text-align: center"> Figure 2: Object Detection with YOLOv11</p>
+<p style="text-align: center"> Figure 3: Object Detection with YOLOv11</p>
 
 The model successfully detected the fire extinguisher with a confidence probability of $0.7$.
 
 ![](../models/yolo_v11_extinguiser/val_batch2_pred.jpg)
-<p style="text-align: center"> Figure 3: Fire Extinguisher Detection with YOLOv11</p>
+<p style="text-align: center"> Figure 4: Fire Extinguisher Detection with YOLOv11</p>
 
 Validation dataset results showed a precision of 92% and a recall of 85%.
 
@@ -83,7 +83,7 @@ Validation dataset results showed a precision of 92% and a recall of 85%.
 ## Faster R-CNN
 
 ![](docs/img/faster_rcnn_experiment/validation_image.png)
-<p style="text-align: center"> Figure 4: Fire Extinguisher Detection with Faster R-CNN</p>
+<p style="text-align: center"> Figure 5: Fire Extinguisher Detection with Faster R-CNN</p>
 
 The Faster R-CNN model was used to detect objects within the dataset, as illustrated above. The model successfully detected the fire extinguishers. 
 
@@ -104,12 +104,12 @@ Decoy filtering is achieved through two methodologies:
 A pre-trained ResNet18 model extracts features from regions defined by bounding boxes in the images. These features are clustered using KMeans into two groups, effectively separating real fire extinguishers from decoys. The clustering results refine the bounding boxes to retain only those associated with real fire extinguishers.
 
 ![](docs/img/faster_rcnn_experiment/without_decoy_filter.png) 
-<p style="text-align: center"> Figure 5: Object detection with Faster R-CNN before applying decoy filter</p>
+<p style="text-align: center"> Figure 6: Object detection with Faster R-CNN before applying decoy filter</p>
 
 The image above shows the Faster R-CNN model's detection results before applying the decoy filter.
 
 ![](docs/img/faster_rcnn_experiment/with_decoy_filter.png) 
-<p style="text-align: center"> Figure 6: Object detection with Faster R-CNN after applying decoy filter using ResNet18 and K-Means</p>
+<p style="text-align: center"> Figure 7: Object detection with Faster R-CNN after applying decoy filter using ResNet18 and K-Means</p>
 
 The image above shows the Faster R-CNN model's detection results after applying the decoy filter.
 
@@ -118,7 +118,7 @@ The image above shows the Faster R-CNN model's detection results after applying 
 The Local Binary Pattern (LBP) is a texture descriptor used to classify textures based on the patterns formed by pixel intensity values. The LBP histogram helps classify objects as real or decoys.
 
 ![](docs/img/yolov11_experiment/img0/lbp_hist.png)
-<p style="text-align: center"> Figure 7: LBP Histogram for Texture Analysis</p>
+<p style="text-align: center"> Figure 8: LBP Histogram for Texture Analysis</p>
 
 # 5. Position Estimation
 
@@ -142,19 +142,19 @@ where:
 ## Using Depth Map with YOLOv11
 
 ![](docs/img/yolov11_experiment/img0/depth_image.png)
-<p style="text-align: center"> Figure 8: Depth Map</p>
+<p style="text-align: center"> Figure 9: Depth Map</p>
 
 The depth map is used to estimate the 3D position of the object in the image.
 
 ![](docs/img/yolov11_experiment/img0/detection_with_3D_positions.png)
-<p style="text-align: center"> Figure 9: Object Detection with 3D Position Estimation</p>
+<p style="text-align: center"> Figure 10: Object Detection with 3D Position Estimation</p>
 
 The 3D position of the object is estimated using the depth map.
 
 ## Using Depth Map with Faster R-CNN
 
 ![](docs/img/faster_rcnn_experiment/with_decoy_filtering_and_3d_pos.png) 
-<p style="text-align: center"> Figure 11: 3D position estimated with Depth images</p>
+<p style="text-align: center"> Figure 12: 3D position estimated with Depth images</p>
 
 # 6. Conclusion
 
