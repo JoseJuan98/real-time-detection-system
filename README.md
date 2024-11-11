@@ -99,6 +99,10 @@ Decoy filtering is achieved through two methodologies:
 - Feature Extraction using ResNet18 and K-Means Clustering
 - Local Binary Pattern histogram for Texture Analysis
 
+## Dataset
+
+The dataset used for the decoy filtering was provided by our university, and it cannot be shared due to privacy reasons. 
+
 ## Feature Extraction using ResNet18 and K-Means Clustering
 
 A pre-trained ResNet18 model extracts features from regions defined by bounding boxes in the images. These features are clustered using KMeans into two groups, effectively separating real fire extinguishers from decoys. The clustering results refine the bounding boxes to retain only those associated with real fire extinguishers.
@@ -138,6 +142,10 @@ where:
 - $(f_x, f_y)$ is the focal length of the camera
 - $D(x,y)$ is the depth at position $(x,y)$
 - $(X,Y,Z)$ is the 3D position of the object
+
+## Dataset
+
+The dataset with the raw and depth images used for the position estimation was provided by our university, and it cannot be shared due to privacy reasons.
 
 ## Using Depth Map with YOLOv11
 
